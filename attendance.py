@@ -15,9 +15,9 @@ def main():
 
     # THIS IS ALL NEW--------------------
     ids = {}
-    with open("ids.txt", "r") as ins:
+    with open("ids.csv", "r") as ins:
         for line in ins:
-            (key, val) = line.split()
+            (key, val) = line.split(',')
             ids[key] = int(val)
     print(ids)
     # -------------------------------------
