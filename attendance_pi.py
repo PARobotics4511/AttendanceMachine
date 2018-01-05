@@ -9,8 +9,10 @@ menu_options = ["1) Sign in", "2) Sign out", "3) Quit"]
 #testing-----------------------------------------------------------
 reader = SimpleMFRC522.SimpleMFRC522()
 
+GPIO.setwarnings(False)
+
 #reading/writing
-def write():
+'''def write():
     try:
         text = raw_input('New data:')
         print("Now place your tag to write")
@@ -19,30 +21,30 @@ def write():
 
     finally:
         GPIO.cleanup()
-
+'''
 def read():
+    
     try:
         id, text = reader.read()
         print(id)
         print(text)
-        return text
+        return text.strip() + "\n"
     finally:
         GPIO.cleanup()
-#------------------------------------------------------------------
 
 def main():
-
-    # THIS IS ALL NEW--------------------
-    ids = {}
+    ids = []
     with open("ids.csv", "r") as ins:
         for line in ins:
-            (key, val) = line.split(',')
-            ids[key] = int(val)
+            #(key, val) = line.split(',')
+            #ids[key] = int(val)
+            ids.append(line)
     print(ids)
-    # -------------------------------------
+    
     global name
     name = read()
-
+    #read()
+    
     if name in ids:
         choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
         choice = int(choice)
