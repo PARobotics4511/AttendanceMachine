@@ -1,8 +1,27 @@
 import RPi.GPIO as GPIO
 import SimpleMFRC522
+from RPLCD.gpio import CharLCD
 
 import time
 import datetime
+
+GPIO.setmode(GPIO.BCM)
+
+#Screen Setup--------------------------------------
+lcd = CharLCD(pin_rs=22, pin_rw=24, pin_e=23, pins_data=[21, 16, 12, 20],
+              numbering_mode=GPIO.BCM,
+
+cols=16, rows=2, dotsize=8,
+              charmap='A02',
+              auto_linebreaks=True)
+
+#lcd.write_string('Mahoney & Luke\r\n  are great2!')
+#-end-----------------------------------------------
+
+button1= 6 #gray1
+button2= 13 #blue
+button3= 19 #red
+button4= 26 # grey 2
 
 menu_options = ["1) Sign in", "2) Sign out", "3) Quit"]
 
@@ -22,6 +41,16 @@ GPIO.setwarnings(False)
     finally:
         GPIO.cleanup()
 '''
+def display(message):
+    lcd = CharLCD(pin_rs=22, pin_rw=24, pin_e=23, pins_data=[21, 16, 12, 20],
+              numbering_mode=GPIO.BCM,
+
+    cols=16, rows=2, dotsize=8,
+              charmap='A02',
+              auto_linebreaks=True)
+
+    lcd.write_string(message)
+    
 def read():
     
     try:
@@ -44,8 +73,10 @@ def main():
     global name
     name = read()
     #read()
+    #display(name)
     
     if name in ids:
+        display(name)
         choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
         choice = int(choice)
 
@@ -53,18 +84,22 @@ def main():
         print("Logging file...")
         log_file = open("log.csv","a")
         time.sleep(0.1)
-
+        
+        #input1 = GPIO.input(button2)
         #this next thing is new
         if choice == 1:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
-            print("You are now signed in!")
+            display("Greetings, " + name)
+            print("Greetings, " + name + ". You are now signed in!")
         elif choice == 2:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
+            display("You are now signed out! Thanks for coming!")
             print("You are now signed out! Thanks for coming!")
         else:
             time.sleep(0.1)
     else:
-        print("Sorry. Please enter a valid name")
+        display("Sorry. Please scan a valid ID")
+        print("Sorry. Please scan a valid ID")
         main()
 
     #print("Main has been called!")
