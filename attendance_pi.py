@@ -150,8 +150,9 @@ def main():
             print("Greetings, " + name + ". You are now signed in!")
         elif choice == 2:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
-            display("Bye!")
+            display("Bye, " + name "!")
             print("Bye!")
+
         else:
             time.sleep(0.1)
     else:
