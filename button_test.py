@@ -14,12 +14,15 @@ GPIO.setup(button2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button3, GPIO.IN)
 GPIO.setup(button4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-previous_input = 0
+previous_input = 1
 
 while True:
     
+   
     input1 = GPIO.input(button4)
     
+    
+    #print(input1)
    
     if((not previous_input) and input1):
         print("Button pressed!")
