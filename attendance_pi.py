@@ -113,7 +113,7 @@ def read():
         GPIO.cleanup()
 
 def main():
-    display("Present ID")
+    display("Scan ID")
     ids = []
     with open("ids.csv", "r") as ins:
         for line in ins:
@@ -149,14 +149,14 @@ def main():
             display("Greetings, " + name)
             print("Greetings, " + name + ". You are now signed in!")
         elif choice == 2:
-            log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
-            display("You are now signed out! Thanks for coming!")
-            print("Bye Bye")
+            log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")  
+            display("Bye, " + name "!")
+             print("Bye Bye")
         else:
             time.sleep(0.1)
     else:
-        display("Sorry. Please scan a valid ID")
-        print("Sorry. Please scan a valid ID")
+        display("Invalid ID")
+        print("Invalid ID")
         main()
 
     #print("Main has been called!")
