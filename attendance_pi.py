@@ -150,6 +150,7 @@ def main():
     if name in ids:
         display("Select command, " + name)
         interrupt1()
+        buzz()
         time.sleep(1)
         choice = pressButton()
         #choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
@@ -168,6 +169,7 @@ def main():
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
             display("    Greetings, \r\n" + name)
             print("Greetings, " + name + ". You are now signed in!")
+            main()
         elif choice == 2:
 
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
@@ -176,8 +178,10 @@ def main():
             time.sleep(1)
             display("   Thanks for \r\n    coming!")
             print("You are now signed out! Thanks for coming!")
+            main()
         else:
             time.sleep(0.1)
+            main()
     else:
         interrupt1()
         display("Sorry. Please scan a valid ID")
