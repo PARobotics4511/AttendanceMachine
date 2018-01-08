@@ -101,7 +101,10 @@ def display(message):
               auto_linebreaks=True)
 
     lcd.write_string(message)
-    
+
+def interrupt1():
+    print("interrupt1")
+
 def read():
     
     try:
@@ -113,6 +116,8 @@ def read():
         GPIO.cleanup()
 
 def main():
+    interrupt1()
+    time.sleep(0.6)
     display("Present ID")
     ids = []
     with open("ids.csv", "r") as ins:
@@ -129,8 +134,8 @@ def main():
     
     if name in ids:
         display("Select command, " + name)
-        time.sleep(0.1)
-
+        interrupt1()
+        time.sleep(0.5)
         choice = pressButton()
         #choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
         #choice = int(choice)
@@ -146,15 +151,19 @@ def main():
             
         if choice == 1:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
-            display("Greetings, " + name)
+            display("    Greetings, \r\n" + name)
             print("Greetings, " + name + ". You are now signed in!")
         elif choice == 2:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
-            display("You are now signed out! Thanks for coming!")
+            display("    Goodbye, \r\n" + name)
+            interrupt1()
+            time.sleep(1)
+            display("   Thanks for \r\n    coming!")
             print("You are now signed out! Thanks for coming!")
         else:
             time.sleep(0.1)
     else:
+        interrupt1()
         display("Sorry. Please scan a valid ID")
         print("Sorry. Please scan a valid ID")
         main()
