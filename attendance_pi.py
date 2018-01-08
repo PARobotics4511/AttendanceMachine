@@ -56,7 +56,7 @@ def pressButton():
     button2= 13 #blue
     button3= 19 #red
     button4= 26 # grey 2
-    
+
     GPIO.setup(button1, GPIO.IN)
     GPIO.setup(button2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(button3, GPIO.IN)
@@ -65,23 +65,23 @@ def pressButton():
     previous_input = 1
 
     while True:
-        
+
         input1 = GPIO.input(button1)
         input2 = GPIO.input(button2)
         input3 = GPIO.input(button3)
         input4 = GPIO.input(button4)
-        
+
         '''print("input 1 = " + str(input1))
         print("input 2 = " + str(input2))
         print("input 3 = " + str(input3))
         print("input 4 = " + str(input4))'''
-       
+
         if((True) and ((not input1) or (not input2) or (not input3) or (not input4))):
             '''print("input 1 = " + str(input1))
             print("input 2 = " + str(input2))
             print("input 3 = " + str(input3))
             print("input 4 = " + str(input4))'''
-            
+
             if(not input1):
                print("Button 1 Pressed!")
                #previous_input = input1
@@ -99,9 +99,9 @@ def pressButton():
                #previous_input = input4
                return 4
         #update previous input
-        
+
         time.sleep(0.1)
-    
+
 def display(message):
     lcd = CharLCD(pin_rs=22, pin_rw=24, pin_e=23, pins_data=[21, 16, 12, 20],
               numbering_mode=GPIO.BCM,
@@ -112,11 +112,13 @@ def display(message):
 
     lcd.write_string(message)
 
+
 def interrupt1():
     print("interrupt1")
 
+
 def read():
-    
+
     try:
         id, text = reader.read()
         print(id)
@@ -127,10 +129,11 @@ def read():
         
 
 def main():
-    buzz
+    buzz()
     interrupt1()
     time.sleep(0.6)
     display("Please sign in.")
+
     ids = []
     with open("ids.csv", "r") as ins:
         for line in ins:
@@ -138,12 +141,12 @@ def main():
             #ids[key] = int(val)
             ids.append(line)
     print(ids)
-    
+
     global name
     name = read()
     #read()
     #display(name)
-    
+
     if name in ids:
         display("Select command, " + name)
         interrupt1()
@@ -156,16 +159,17 @@ def main():
         print("Logging file...")
         log_file = open("log.csv","a")
         time.sleep(0.1)
-        
+
         #input1 = GPIO.input(button2)
         #this next thing is new
         #choice = pressButton()
-            
+
         if choice == 1:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
             display("    Greetings, \r\n" + name)
             print("Greetings, " + name + ". You are now signed in!")
         elif choice == 2:
+
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
             display("    Goodbye, \r\n" + name)
             interrupt1()
@@ -178,6 +182,7 @@ def main():
         interrupt1()
         display("Sorry. Please scan a valid ID")
         print("Sorry. Please scan a valid ID")
+
         main()
 
     #print("Main has been called!")
