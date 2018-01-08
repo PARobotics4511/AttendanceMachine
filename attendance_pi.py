@@ -41,6 +41,16 @@ GPIO.setwarnings(False)
     finally:
         GPIO.cleanup()
 '''
+def buzz():
+    buzz_pin = 27
+    GPIO.setup(buzz_pin, GPIO.OUT)
+    #GPIO.output(buzz_pin, GPIO.HIGH)
+    
+    GPIO.output(buzz_pin, GPIO.HIGH)
+    print("buzzing")
+    time.sleep(0.5)
+    GPIO.output(buzz_pin, GPIO.LOW)
+    
 def pressButton():
     button1= 6 #gray1
     button2= 13 #blue
@@ -114,11 +124,13 @@ def read():
         return text.strip() + "\n"
     finally:
         GPIO.cleanup()
+        
 
 def main():
+    buzz
     interrupt1()
     time.sleep(0.6)
-    display("Present ID")
+    display("Please sign in.")
     ids = []
     with open("ids.csv", "r") as ins:
         for line in ins:
@@ -135,7 +147,7 @@ def main():
     if name in ids:
         display("Select command, " + name)
         interrupt1()
-        time.sleep(0.5)
+        time.sleep(1)
         choice = pressButton()
         #choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
         #choice = int(choice)
