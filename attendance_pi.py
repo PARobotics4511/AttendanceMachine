@@ -112,7 +112,15 @@ def display(message):
 
     lcd.write_string(message)
 
+def clear():
+    lcd = CharLCD(pin_rs=22, pin_rw=24, pin_e=23, pins_data=[21, 16, 12, 20],
+              numbering_mode=GPIO.BCM,
 
+    cols=16, rows=2, dotsize=8,
+              charmap='A02',
+              auto_linebreaks=True)
+    lcd.clear()
+    
 def interrupt1():
     print("interrupt1")
 
@@ -131,7 +139,7 @@ def read():
 def main():
     buzz()
     interrupt1()
-    time.sleep(0.6)
+    time.sleep(1)
     display("Please sign in.")
 
     ids = []
@@ -171,7 +179,6 @@ def main():
             print("Greetings, " + name + ". You are now signed in!")
             main()
         elif choice == 2:
-
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
             display("    Goodbye, \r\n" + name)
             interrupt1()
@@ -179,9 +186,21 @@ def main():
             display("   Thanks for \r\n    coming!")
             print("You are now signed out! Thanks for coming!")
             main()
+        elif choice == 3:
+            buzz()
+            time.sleep(0.2)
+            buzz()
+            time.sleep(0.2)
+            buzz()
+            interrupt1()
+            time.sleep(1)
+            clear()
+            time.sleep(1)
+            
         else:
             time.sleep(0.1)
             main()
+    
     else:
         interrupt1()
         display("Sorry. Please scan a valid ID")
