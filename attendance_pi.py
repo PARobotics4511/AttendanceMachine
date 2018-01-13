@@ -2,8 +2,11 @@ import RPi.GPIO as GPIO
 import SimpleMFRC522
 from RPLCD.gpio import CharLCD
 
+import subprocess
+
 import time
 import datetime
+import os
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -15,7 +18,7 @@ cols=16, rows=2, dotsize=8,
               charmap='A02',
               auto_linebreaks=True)
 
-#lcd.write_string('Mahoney & Luke\r\n  are great2!')
+
 #-end-----------------------------------------------
 
 button1= 6 #gray1
@@ -41,11 +44,29 @@ GPIO.setwarnings(False)
     finally:
         GPIO.cleanup()
 '''
+def send_log():
+    #if datetime.datetime.today().weekday() == 5 and
+    print("about to send log")
+    with open("sent_log.txt","r") as f:
+        lines = f.read().splitlines()
+        last_line = lines[-1]
+        print last_line
+        if str(datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y')) in last_line:
+            print("it's there duder")
+        else:
+            print("We're gonna send this one, my man")
+            ammended_file = open("sent_log.txt","a")
+            ammended_file.write("\n" + str(datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y')) + " : Sent!")
+            os.system("sudo python email_test.py")
+             
+def compress_name(name):
+    name_list = name.split("_")
+    formatted_name = str(name_list[0] + " " + name_list[1][0])
+    return formatted_name
+    
 def buzz():
     buzz_pin = 27
     GPIO.setup(buzz_pin, GPIO.OUT)
-    #GPIO.output(buzz_pin, GPIO.HIGH)
-    
     GPIO.output(buzz_pin, GPIO.HIGH)
     print("buzzing")
     time.sleep(0.5)
@@ -71,34 +92,20 @@ def pressButton():
         input3 = GPIO.input(button3)
         input4 = GPIO.input(button4)
 
-        '''print("input 1 = " + str(input1))
-        print("input 2 = " + str(input2))
-        print("input 3 = " + str(input3))
-        print("input 4 = " + str(input4))'''
-
         if((True) and ((not input1) or (not input2) or (not input3) or (not input4))):
-            '''print("input 1 = " + str(input1))
-            print("input 2 = " + str(input2))
-            print("input 3 = " + str(input3))
-            print("input 4 = " + str(input4))'''
 
             if(not input1):
                print("Button 1 Pressed!")
-               #previous_input = input1
                return 1
             elif(not input2):
                print("Button 2 Pressed!")
-               #previous_input = input2
                return 2
             elif(not input3):
                print("Button 3 Pressed!")
-               #previous_input = input3
                return 3
             elif(not input4):
                print("Button 4 Pressed!")
-               #previous_input = input4
                return 4
-        #update previous input
 
         time.sleep(0.1)
 
@@ -137,9 +144,15 @@ def read():
         
 
 def main():
+    
+    #see if it's time to send the log to Mr. P
+    send_log()
+    
     buzz()
+
     interrupt1()
     time.sleep(1)
+    #subprocess.call(["omxplayer", "-o", "local", "-l", "0006", "../../Downloads/intro.mp3"])
     display("Please sign in.")
 
     ids = []
@@ -152,10 +165,10 @@ def main():
 
     global name
     name = read()
-    #read()
-    #display(name)
 
     if name in ids:
+        short_name = compress_name(name)
+        print(short_name)
         display("Select command, " + name)
         interrupt1()
         buzz()
@@ -164,23 +177,20 @@ def main():
         #choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
         #choice = int(choice)
 
-        #stuff that was in the log() function
+        #open csv log
         print("Logging file...")
-        log_file = open("log.csv","a")
+        log_file = open("logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv","a")
         time.sleep(0.1)
 
-        #input1 = GPIO.input(button2)
-        #this next thing is new
-        #choice = pressButton()
-
+        #print(formatted_name)
         if choice == 1:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
             display("    Greetings, \r\n" + name)
-            print("Greetings, " + name + ". You are now signed in!")
+            print("Greetings, " + short_name + ". You are now signed in!")
             main()
         elif choice == 2:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
-            display("    Goodbye, \r\n" + name)
+            display("    Goodbye, \r\n" + short_name)
             interrupt1()
             time.sleep(1)
             display("   Thanks for \r\n    coming!")
@@ -207,9 +217,6 @@ def main():
         print("Sorry. Please scan a valid ID")
 
         main()
-
-    #print("Main has been called!")
-
 
 
 if __name__ == "__main__":
