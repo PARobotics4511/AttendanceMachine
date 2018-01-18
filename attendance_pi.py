@@ -7,7 +7,7 @@ import subprocess
 import time
 import datetime
 import os
-
+#from datetime import datetime, time
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 #Screen Setup--------------------------------------
@@ -44,6 +44,14 @@ GPIO.setwarnings(False)
     finally:
         GPIO.cleanup()
 '''
+def check_closingtime():
+    try:
+        if(datetime.datetime.now().time() >= datetime.time(10,30)):
+            subprocess.call(["omxplayer", "-o", "local", "-l", "0057", "../../Downloads/Closing_Time.mp3"])
+    except pressButton() == 4:
+        return True
+    #print(datetime.datetime.time(15, ))
+    #print(datetime.time(10,30))
 def send_log():
     #if datetime.datetime.today().weekday() == 5 and
     print("about to send log")
@@ -87,10 +95,10 @@ def pressButton():
 
     while True:
 
-        input1 = GPIO.input(button1)
-        input2 = GPIO.input(button2)
-        input3 = GPIO.input(button3)
-        input4 = GPIO.input(button4)
+        input1 = GPIO.input(button2)
+        input2 = GPIO.input(button3)
+        input3 = GPIO.input(button4)
+        input4 = GPIO.input(button1)
 
         if((True) and ((not input1) or (not input2) or (not input3) or (not input4))):
 
@@ -127,6 +135,7 @@ def clear():
               charmap='A02',
               auto_linebreaks=True)
     lcd.clear()
+    time.sleep(0.5)
     
 def interrupt1():
     print("interrupt1")
@@ -144,7 +153,7 @@ def read():
         
 
 def main():
-    
+    check_closingtime()
     #see if it's time to send the log to Mr. P
     send_log()
     
@@ -169,7 +178,7 @@ def main():
     if name in ids:
         short_name = compress_name(name)
         print(short_name)
-        display("Select command, " + name)
+        display("Select command, " + short_name)
         interrupt1()
         buzz()
         time.sleep(1)
@@ -180,19 +189,23 @@ def main():
         #open csv log
         print("Logging file...")
         log_file = open("logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv","a")
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         #print(formatted_name)
         if choice == 1:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
-            display("    Greetings, \r\n" + name)
+            #interrupt1()
+            #time.sleep(0.5)
+            display("    Greetings, \r\n   " + short_name)
             print("Greetings, " + short_name + ". You are now signed in!")
             main()
         elif choice == 2:
             log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
-            display("    Goodbye, \r\n" + short_name)
-            interrupt1()
-            time.sleep(1)
+            #interrupt1()
+            #time.sleep(0.5)
+            display("    Goodbye, \r\n    " + short_name)
+            #interrupt1()
+            #time.sleep(1.5)
             display("   Thanks for \r\n    coming!")
             print("You are now signed out! Thanks for coming!")
             main()
@@ -213,6 +226,7 @@ def main():
     
     else:
         interrupt1()
+        time.sleep(1.5)
         display("Sorry. Please scan a valid ID")
         print("Sorry. Please scan a valid ID")
 
