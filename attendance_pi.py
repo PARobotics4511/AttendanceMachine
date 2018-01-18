@@ -7,6 +7,7 @@ import subprocess
 import time
 import datetime
 import os
+import csv
 #from datetime import datetime, time
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -46,7 +47,7 @@ GPIO.setwarnings(False)
 '''
 def check_closingtime():
     try:
-        if(datetime.datetime.now().time() >= datetime.time(10,30)):
+        if(datetime.datetime.now().time() >= datetime.time(17,30)):
             subprocess.call(["omxplayer", "-o", "local", "-l", "0057", "../../Downloads/Closing_Time.mp3"])
     except pressButton() == 4:
         return True
@@ -153,17 +154,19 @@ def read():
         
 
 def main():
+    clear()
+    time.sleep(0.5)
+    
     check_closingtime()
     #see if it's time to send the log to Mr. P
     send_log()
     
-    buzz()
-
-    interrupt1()
-    time.sleep(1)
-    #subprocess.call(["omxplayer", "-o", "local", "-l", "0006", "../../Downloads/intro.mp3"])
+    #buzz()
     display("Please sign in.")
+    time.sleep(1)
 
+    
+    
     ids = []
     with open("ids.csv", "r") as ins:
         for line in ins:
@@ -176,38 +179,50 @@ def main():
     name = read()
 
     if name in ids:
+        clear()
+        buzz()
+        time.sleep(1)
+        clear()
         short_name = compress_name(name)
         print(short_name)
         display("Select command, " + short_name)
-        interrupt1()
-        buzz()
-        time.sleep(1)
+        time.sleep(0.5)
         choice = pressButton()
+        clear()
+        time.sleep(0.05)
         #choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
         #choice = int(choice)
 
         #open csv log
         print("Logging file...")
-        log_file = open("logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv","a")
-        time.sleep(0.5)
-
+        log_file = open("logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv","ab")
+        writer = csv.writer(log_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        #time.sleep(0.5)
+        
         #print(formatted_name)
         if choice == 1:
-            log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + ",SIGNED IN")
-            #interrupt1()
-            #time.sleep(0.5)
+            clear()
+            time.sleep(0.5)
+            writer.writerow([name,str(datetime.datetime.now()),'SIGNED IN'])
             display("    Greetings, \r\n   " + short_name)
             print("Greetings, " + short_name + ". You are now signed in!")
+            time.sleep(1)
+            log_file.close()
+            print("clearing...")
+            clear()
+            time.sleep(0.8)
+            print("done clearing")
             main()
         elif choice == 2:
-            log_file.write("\n" + name + ", " + str(datetime.datetime.now()) + " SIGNED OUT")
-            #interrupt1()
-            #time.sleep(0.5)
+            clear()
+            time.sleep(0.5)
+            writer.writerow([name,str(datetime.datetime.now()),'SIGNED OUT'])
             display("    Goodbye, \r\n    " + short_name)
-            #interrupt1()
-            #time.sleep(1.5)
-            display("   Thanks for \r\n    coming!")
             print("You are now signed out! Thanks for coming!")
+            time.sleep(1)
+            log_file.close()
+            clear()
+            time.sleep(0.8)
             main()
         elif choice == 3:
             buzz()
@@ -219,6 +234,9 @@ def main():
             time.sleep(1)
             clear()
             time.sleep(1)
+            main()
+        elif choice == 4:
+            clear()
             
         else:
             time.sleep(0.1)
