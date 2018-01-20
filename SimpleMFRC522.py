@@ -2,9 +2,13 @@
 
 import MFRC522
 import RPi.GPIO as GPIO
-  
+from check_closing_time import check
+from auto_send import check_send
 class SimpleMFRC522:
 
+
+  check_send()
+  
   READER = None;
   
   KEY = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
@@ -16,6 +20,7 @@ class SimpleMFRC522:
   def read(self):
       id, text = self.read_no_block()        
       while not id:
+          check()
           id, text = self.read_no_block()  
       return id, text
 

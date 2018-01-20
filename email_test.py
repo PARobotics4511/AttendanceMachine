@@ -25,7 +25,7 @@ body = "Here's the log from " + str(calendar.day_name[my_date.weekday()]) + ", "
 msg.attach(MIMEText(body, 'plain'))
  
 filename = "log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv"
-attachment = open("logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv", "rb")
+attachment = open("/home/pi/Documents/AttendanceMachine/logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv", "rb")
  
 part = MIMEBase('application', 'octet-stream')
 part.set_payload((attachment).read())

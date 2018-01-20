@@ -45,29 +45,17 @@ GPIO.setwarnings(False)
     finally:
         GPIO.cleanup()
 '''
-def check_closingtime():
+def read():
+    
     try:
-        if(datetime.datetime.now().time() >= datetime.time(17,30)):
-            subprocess.call(["omxplayer", "-o", "local", "-l", "0057", "../../Downloads/Closing_Time.mp3"])
-    except pressButton() == 4:
-        return True
-    #print(datetime.datetime.time(15, ))
-    #print(datetime.time(10,30))
-def send_log():
-    #if datetime.datetime.today().weekday() == 5 and
-    print("about to send log")
-    with open("sent_log.txt","r") as f:
-        lines = f.read().splitlines()
-        last_line = lines[-1]
-        print last_line
-        if str(datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y')) in last_line:
-            print("it's there duder")
-        else:
-            print("We're gonna send this one, my man")
-            ammended_file = open("sent_log.txt","a")
-            ammended_file.write("\n" + str(datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y')) + " : Sent!")
-            os.system("sudo python email_test.py")
-             
+        #check_closingtime()
+        id, text = reader.read()
+        print(id)
+        print(text)
+        return text.strip() + "\n"
+    finally:
+        GPIO.cleanup()
+        
 def compress_name(name):
     name_list = name.split("_")
     formatted_name = str(name_list[0] + " " + name_list[1][0])
@@ -141,25 +129,13 @@ def clear():
 def interrupt1():
     print("interrupt1")
 
-
-def read():
-
-    try:
-        id, text = reader.read()
-        print(id)
-        print(text)
-        return text.strip() + "\n"
-    finally:
-        GPIO.cleanup()
-        
-
 def main():
     clear()
     time.sleep(0.5)
     
-    check_closingtime()
+    #check_closingtime()
     #see if it's time to send the log to Mr. P
-    send_log()
+    #send_log()
     
     #buzz()
     display("Please sign in.")
@@ -168,7 +144,7 @@ def main():
     
     
     ids = []
-    with open("ids.csv", "r") as ins:
+    with open("/home/pi/Documents/AttendanceMachine/ids.csv", "r") as ins:
         for line in ins:
             #(key, val) = line.split(',')
             #ids[key] = int(val)
@@ -195,7 +171,7 @@ def main():
 
         #open csv log
         print("Logging file...")
-        log_file = open("logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv","ab")
+        log_file = open("/home/pi/Documents/AttendanceMachine/logs/log-" + datetime.datetime.strptime(str(datetime.date.today()), '%Y-%m-%d').strftime('%m-%d-%y') + ".csv","ab")
         writer = csv.writer(log_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         #time.sleep(0.5)
         
