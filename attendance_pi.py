@@ -4,6 +4,7 @@ from RPLCD.gpio import CharLCD
 from check_closing_time import check
 import subprocess
 
+#import sys
 from threading import Thread
 import time
 import datetime
@@ -12,6 +13,7 @@ import csv
 
 global cycle
 cycle = 0.0
+
 
 class Primary:
     #from datetime import datetime, time
@@ -112,7 +114,7 @@ class Primary:
                    print("Button 4 Pressed!")
                    return 4
 
-            time.sleep(0.1)
+          
 
     def display(self, message):
         lcd = CharLCD(pin_rs=22, pin_rw=24, pin_e=23, pins_data=[21, 16, 12, 20],
@@ -132,22 +134,23 @@ class Primary:
                   charmap='A02',
                   auto_linebreaks=True)
         lcd.clear()
-        time.sleep(0.5)
+        
         
     def interrupt1():
         print("interrupt1")
 
     def main(self):
         Primary.clear(self)
-        time.sleep(0.5)
+        #time.sleep(1)
         
         #check_closingtime()
         #see if it's time to send the log to Mr. P
         #send_log()
         
         #buzz()
-        Primary.display(self, "Please sign in.")
-        time.sleep(1)
+        display_now = Thread(target=Primary.display(self, "Please sign in"))
+        display_now.start()
+        
 
         
         
@@ -163,17 +166,18 @@ class Primary:
         name = Primary.read(self)
 
         if name in ids:
-            Primary.clear(self)
-            Primary.buzz(self)
-            time.sleep(1)
+            display_now.join
+            
             Primary.clear(self)
             short_name = Primary.compress_name(self, name)
             print(short_name)
-            Primary.display(self, "Select command, " + short_name)
-            time.sleep(0.5)
+            display_now = Thread(target=Primary.display(self, "Select command, " + short_name))
+            display_now.start()
+            #Primary.display(self, "Select command, " + short_name)
+            #time.sleep(0.5)
             choice = Primary.pressButton(self)
             Primary.clear(self)
-            time.sleep(0.05)
+            #time.sleep(0.05)
             #choice = input("Select your command:\n" + " ".join(menu_options) + "\n")
             #choice = int(choice)
 
@@ -185,30 +189,40 @@ class Primary:
             
             #print(formatted_name)
             if choice == 1:
+                display_now.join()
                 Primary.clear(self)
-                time.sleep(0.5)
+                
                 writer.writerow([name,str(datetime.datetime.now()),'SIGNED IN'])
-                Primary.display(self,"    Greetings, \r\n   " + short_name)
+                
+                display_second  = Thread(target=Primary.display(self,"    Greetings, \r\n   " + short_name))
+                display_second.start()
+                time.sleep(1.25)
                 print("Greetings, " + short_name + ". You are now signed in!")
-                time.sleep(1)
+                
                 log_file.close()
                 print("clearing...")
                 Primary.clear(self)
-                time.sleep(0.8)
+                
                 print("done clearing")
-                main()
+                #time.sleep(2.5)
+                display_second.join()
+                Primary.main(self)
             elif choice == 2:
+                display_now.join()
                 Primary.clear(self)
-                time.sleep(0.5)
+                #time.sleep(0.5)
                 writer.writerow([name,str(datetime.datetime.now()),'SIGNED OUT'])
-                Primary.display(self,"    Goodbye, \r\n    " + short_name)
+                display_third = Thread(target=Primary.display(self,"    Goodbye, \r\n    " + short_name))
+                display_third.start()
                 print("You are now signed out! Thanks for coming!")
-                time.sleep(1)
+                
                 log_file.close()
-                Primary.clear(self)
-                time.sleep(0.8)
-                main()
+                time.sleep(2.25)
+               # Primary.clear(self)
+                display_third.join()
+                Primary.main(self)
             elif choice == 3:
+                display_now.join()
                 Primary.buzz(self)
                 time.sleep(0.2)
                 Primary.buzz(self)
@@ -217,22 +231,24 @@ class Primary:
                 time.sleep(1)
                 Primary.clear(self)
                 time.sleep(1)
-                main()
+                Primary.main(self)
             elif choice == 4:
+                display_now.join()
                 Primary.clear(self)
-                main()
+                Primary.main(self)
                 
             else:
+                display_now.join()
                 time.sleep(0.1)
-                main()
+                Primary.main(self)
         
         else:
-            interrupt1()
+            #interrupt1()
             time.sleep(1.5)
-            Primary.display("Sorry. Please scan a valid ID")
+            Primary.display(self, "Sorry. Please scan a valid ID")
             print("Sorry. Please scan a valid ID")
 
-            main()
+            Primary.main(self)
 
 
     '''if __name__ == "__main__":
@@ -247,14 +263,30 @@ class Primary:
     #def run(self):
      #   main()
 
-Primary_Protocol = Primary()
-Primary_Protocol_Thread = Thread(target=Primary_Protocol.main)
-Primary_Protocol_Thread.start()
-
-Exit = False
-while Exit == False:
-    cycle = cycle + 0.1
-    time.sleep(1)
-    if (cycle > 5): Exit = True
+class Closing:
     
-Primary_Protocol.terminate()
+    def main(self):
+        check() #see if it's closing time
+    
+try:
+    Primary_Protocol = Primary()
+    Primary_Protocol_Thread = Thread(target=Primary_Protocol.main)
+    Primary_Protocol_Thread.start()
+
+    Closing_Protocol = Closing()
+    Closing_Protocol_Thread = Thread(target=Closing_Protocol.main)
+    Closing_Protocol_Thread.start()
+
+    Exit = False
+    while Exit == False:
+        cycle = cycle + 0.1
+        time.sleep(1)
+        if (cycle > 5): Exit = True
+        
+    Primary_Protocol.terminate()
+    
+except KeyboardInterrupt:
+    GPIO.cleanup()
+    Primary_Protocol_Thread.join()
+    Closing_Protocol_Thread.join()
+    sys.exit()
